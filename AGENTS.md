@@ -52,32 +52,42 @@ merely reporting invalid model output.
 
 
 <!-- BEGIN:deepseek-sonar-openrouter-standard -->
-## DeepSeek V4 Pro through OpenRouter
+## DeepSeek V4 Flash 0731 through OpenRouter
 
 When the user asks Codex to call or consult `DeepSeek` without naming a
-different DeepSeek model, use `deepseek/deepseek-v4-pro`. The request
+different DeepSeek model, use `deepseek/deepseek-v4-flash-0731`. The request
 authorizes the paid call; do not ask again unless the requested spend or scope
 materially expands. Use the same scoped `OPENROUTER_API_KEY` handling and
 secret protections defined above.
 
-Never omit reasoning. DeepSeek V4 Pro defaults to high thinking.
+Never omit the reasoning setting. DeepSeek V4 Flash 0731 defaults to high
+reasoning, but explicit `none` was more reliable and faster in the tested
+machine-checked tasks.
 
-- Use `reasoning: {"effort":"none","exclude":true}` for bounded
-  transformations, extraction, classification, strict JSON, fact checks
-  against supplied evidence, and deterministic edit decisions.
+- Use `reasoning: {"effort":"none","exclude":true}` by default, including for
+  bounded transformations, extraction, classification, strict JSON, fact
+  checks against supplied evidence, deterministic edit decisions, and
+  evidence-bound diagnosis.
 - Use `reasoning: {"effort":"high","exclude":true}` only for genuinely hard
-  planning, competing-hypothesis debugging, or multi-constraint synthesis.
-  Keep evidence focused and use a task-tested completion allowance.
-- Use `xhigh` only when explicitly requested or when a representative eval
-  proves high insufficient.
+  planning, competing-hypothesis debugging, or multi-constraint synthesis when
+  a task-specific test shows a benefit. Keep evidence focused, use a tested
+  completion allowance, validate the result, and retry failures in the same
+  turn.
+- Use `max` only when explicitly requested or when a representative test
+  proves high insufficient. This model does not advertise `xhigh`.
 
 Every request must include
-`provider: {"require_parameters":true,"only":["streamlake"],"allow_fallbacks":false}`.
-StreamLake is the current task-tested provider. If unavailable, fail explicitly
+`provider: {"require_parameters":true,"only":["deepinfra"],"allow_fallbacks":false}`.
+DeepInfra is the current task-tested provider. If unavailable, fail explicitly
 and qualify another provider against the same semantic contract before changing
 the pin.
 
-Use strict JSON Schema plus semantic validators for machine-readable output.
+The model does not guarantee `response_format` across providers. The pinned
+DeepInfra endpoint is task-tested for strict structured output, subject to its
+supported JSON Schema subset. Keep `require_parameters`, the provider pin,
+strict JSON Schema, and semantic validators together. Enforce unsupported
+invariants, such as array uniqueness, in the semantic validator.
+
 For exact source, code, or markup edits, ask DeepSeek for a validated selection,
 patch, or edit operation and apply it deterministically outside the model. Do
 not ask it to regenerate an entire source string when exact preservation
