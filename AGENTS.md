@@ -27,9 +27,12 @@ can consume the whole completion budget before final content is produced.
 - Use `xhigh` only when explicitly requested or when a measured hard-task eval
   shows high is insufficient. It is not a default.
 
-Every request must include `provider: {"require_parameters":true}` so a routed
-provider cannot silently ignore reasoning or output controls. Use temperature
-zero for extraction, grading, and rubric-led review. For machine-readable
+Every request must include
+`provider: {"require_parameters":true,"only":["fireworks"],"allow_fallbacks":false}`.
+Fireworks is the current task-tested provider. If it is unavailable, fail
+explicitly and revalidate another provider; do not silently fall back to a
+provider that only claims parameter support. Use temperature zero for
+extraction, grading, and rubric-led review. For machine-readable
 answers, use a strict `json_schema` response format instead of relying on prose
 instructions alone. Put arbitrary source material in a JSON string/object; do
 not wrap HTML source in XML-like delimiters.
