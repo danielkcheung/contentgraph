@@ -3,19 +3,26 @@
 Read the repository documentation before project work.
 
 <!-- BEGIN:glm-52-openrouter-standard -->
-## GLM 5.2 through OpenRouter
+## GLM 5.3 Flash through OpenRouter
 
-When the user asks Codex to consult or call GLM 5.2, use the exact model ID
-`z-ai/glm-5.2`. That request authorizes the paid call; do not ask again unless
+Daniel replaced GLM 5.2 with GLM 5.3 Flash on 16 November 2026. When the user
+asks to consult or call GLM, use the exact model ID `z-ai/glm-5.3-flash`. Do
+not call `z-ai/glm-5.2`: Fireworks stopped serving it on OpenRouter, so its
+old pinned contract fails. An approved product runtime that still names
+`z-ai/glm-5.2` keeps that name until its own project decision changes it.
+
+A request to call GLM authorizes the paid call; do not ask again unless
 the requested spend or scope materially expands. Locally, load only
 `OPENROUTER_API_KEY` from the shared environment file in memory. In Codex
 Cloud, use the environment secret named `OPENROUTER_API_KEY`. Never print,
 copy, or commit the value.
 
-Never omit reasoning configuration. GLM 5.2 defaults to high reasoning, which
-can consume the whole completion budget before final content is produced.
+Never omit reasoning configuration. Reasoning is mandatory for this model:
+`effort: "none"` returns HTTP 400 ("Reasoning is mandatory for this endpoint
+and cannot be disabled", tested 16 November 2026). An unset value can consume
+the whole completion budget before final content is produced.
 
-- Use `reasoning: {"effort":"none","exclude":true}` for bounded edits,
+- Use `reasoning: {"effort":"minimal","exclude":true}` for bounded edits,
   extraction, classification, rewriting, strict JSON, fact checks against
   supplied evidence, quick tool decisions, and long-context audits with an
   explicit rubric.
@@ -24,12 +31,15 @@ can consume the whole completion budget before final content is produced.
   Keep the input focused and give the model a task-tested completion budget.
   For reasoning that must actually execute, pin a currently verified reasoning
   provider and disable fallbacks; Fireworks is the tested reference provider.
-- Use `xhigh` only when explicitly requested or when a measured hard-task eval
-  shows high is insufficient. It is not a default.
+- A setting above `high` is untested for this model. Use one only when
+  explicitly requested, after a test call shows the endpoint accepts it.
 
 Every request must include
 `provider: {"require_parameters":true,"only":["fireworks"],"allow_fallbacks":false}`.
-Fireworks is the current task-tested provider. If it is unavailable, fail
+Fireworks is the current task-tested provider for `z-ai/glm-5.3-flash`
+(16 November 2026: strict `json_schema` output passed at `minimal`, `low`, and
+`high`; the tests were small, so qualify it again for a large or hard task).
+If it is unavailable, fail
 explicitly and revalidate another provider; do not silently fall back to a
 provider that only claims parameter support. Use temperature zero for
 extraction, grading, and rubric-led review. For machine-readable
